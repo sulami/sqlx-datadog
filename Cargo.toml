@@ -1,0 +1,22 @@
+[package]
+name = "sqlx-datadog"
+version = "0.1.0"
+edition = "2024"
+description = "SQLx instrumentation for tracing to Datadog APM via OpenTelemetry"
+authors = ["Robin Schroer"]
+repository = "https://github.com/sulami/sqlx-datadog"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["database", "sqlx", "tracing", "opentelemetry"]
+categories = ["development-tools::debugging", "development-tools::profiling"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1"
+syn = { version = "2", features = ["full"] }
+
+[dev-dependencies]
+sqlx = { version = "0.8", features = ["mysql"] }
+tracing = "0.1"
