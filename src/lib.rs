@@ -78,7 +78,7 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
             fields(
                 span.kind = "client",
                 span.type = "sql",
-                component = "sqlx"
+                component = "sqlx",
                 operation = "sqlx.query",
                 resource,
                 peer.hostname,
