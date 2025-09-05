@@ -57,7 +57,6 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // These are in reverse.
     let injected_tags = vec![
-        quote! { ::tracing::Span::current().record("peer.service", #db_ident.connect_options().get_database()); },
         quote! { ::tracing::Span::current().record("peer.hostname", #db_ident.connect_options().get_host()); },
         quote! { ::tracing::Span::current().record("out.host", #db_ident.connect_options().get_host()); },
         quote! { ::tracing::Span::current().record("out.port", #db_ident.connect_options().get_port()); },
@@ -82,7 +81,6 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
                 operation = "sqlx.query",
                 resource,
                 peer.hostname,
-                peer.service,
                 out.host,
                 out.port,
                 db.system,
