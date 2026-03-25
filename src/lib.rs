@@ -75,18 +75,41 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     }
 
-    // Check if there's a `let query = "..."` binding
+    // Check if there's a `let query = "..."` binding and inject the propagation comment
     let mut query_literal = None;
-    for stmt in &input_fn.block.stmts {
+    let mut query_stmt_index = None;
+    for (i, stmt) in input_fn.block.stmts.iter().enumerate() {
         if let syn::Stmt::Local(local) = stmt &&
             let syn::Pat::Ident(pat_ident) = &local.pat &&
             pat_ident.ident == query_ident &&
             let Some(init) = &local.init &&
             let syn::Expr::Lit(expr_lit) = &*init.expr &&
             let syn::Lit::Str(lit_str) = &expr_lit.lit {
+                // Save original for span tags
                 query_literal = Some(lit_str.clone());
+                query_stmt_index = Some(i);
                 break;
         }
+    }
+
+    // Replace the query binding with runtime string formatting
+    // TODO Additional keys:
+    // dde (environment)
+    // ddps (parent service)
+    // ddpv (parent version)
+    // traceparent (span id)
+    // Need to get those from DatadogSpan, if present.
+    if let (Some(query_lit), Some(index)) = (query_literal.as_ref(), query_stmt_index) {
+        let original_query = query_lit.value();
+        let new_stmt: syn::Stmt = syn::parse(quote! {
+            let query = &format!(
+                "/*ddh={host},dddb={db}*/ {query}",
+                host = #db_ident.connect_options().get_host(),
+                db = #db_ident.connect_options().get_database().unwrap_or(""),
+                query = #original_query
+            );
+        }.into()).unwrap();
+        input_fn.block.stmts[index] = new_stmt;
     }
 
     // These are in reverse.
@@ -129,16 +152,6 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
             #(#instrument_args),*
         )]
     };
-
-    // TODO Inject propagation comment into query.
-    // Format is /*key=value,key=value*/
-    // keys are:
-    // dde (environment)
-    // ddps (parent service)
-    // ddpv (parent version)
-    // ddh (db peer host)
-    // dddb (db instance)
-    // traceparent (span id)
 
     let output = quote! {
         #instrument_attr
