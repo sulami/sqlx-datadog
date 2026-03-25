@@ -1,8 +1,17 @@
+## [0.4.2] - 2026-03-25
+
+### 🚀 Features
+
+- Add the span ID to the query comments for correlation
 ## [0.4.1] - 2026-03-25
 
 ### 📚 Documentation
 
 - Update the readme example for automatic query tags
+
+### ⚙️ Miscellaneous Tasks
+
+- Release sqlx-datadog version 0.4.1
 ## [0.4.0] - 2026-03-25
 
 ### 🚀 Features
