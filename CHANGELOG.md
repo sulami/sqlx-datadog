@@ -1,3 +1,8 @@
+## [0.4.1] - 2026-03-25
+
+### 📚 Documentation
+
+- Update the readme example for automatic query tags
 ## [0.4.0] - 2026-03-25
 
 ### 🚀 Features
@@ -5,6 +10,10 @@
 - Set query span tags automatically
 - Inject host & db tags into queries
 - Support arbitrary query identifiers
+
+### ⚙️ Miscellaneous Tasks
+
+- Release sqlx-datadog version 0.4.0
 ## [0.3.0] - 2025-09-05
 
 ### 🐛 Bug Fixes
