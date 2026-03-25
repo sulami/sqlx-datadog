@@ -97,13 +97,13 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
     // dde (environment)
     // ddps (parent service)
     // ddpv (parent version)
-    // traceparent (span id)
-    // Need to get those from DatadogSpan, if present.
+    // Need to get those from Datadog config, if present.
     if let (Some(query_lit), Some(index)) = (query_literal.as_ref(), query_stmt_index) {
         let original_query = query_lit.value();
         let new_stmt: syn::Stmt = syn::parse(quote! {
             let #query_ident = &format!(
-                "/*ddh={host},dddb={db}*/ {query}",
+                "/*traceparent={span},ddh={host},dddb={db}*/ {query}",
+                span = ::tracing::Span::current().id().map(|id| id.into_u64()).unwrap_or(0),
                 host = #db_ident.connect_options().get_host(),
                 db = #db_ident.connect_options().get_database().unwrap_or(""),
                 query = #original_query
