@@ -53,14 +53,14 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
     let mut instrument_args: Vec<Meta> = vec![];
     let mut fields = vec![];
     let mut db_ident = quote! { db };
-    let mut query_ident = "query".to_string();
+    let mut query_ident = quote! { query };
 
     for arg in args {
         if let Meta::NameValue(name_value) = arg.clone() {
             if name_value.path.get_ident().unwrap() == "db" {
                 db_ident = name_value.value.into_token_stream();
             } else if name_value.path.get_ident().unwrap() == "query" {
-                query_ident = name_value.value.into_token_stream().to_string();
+                query_ident = name_value.value.into_token_stream();
             } else {
                 instrument_args.push(arg);
             }
@@ -81,7 +81,7 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
     for (i, stmt) in input_fn.block.stmts.iter().enumerate() {
         if let syn::Stmt::Local(local) = stmt &&
             let syn::Pat::Ident(pat_ident) = &local.pat &&
-            pat_ident.ident == query_ident &&
+            pat_ident.ident == query_ident.to_string() &&
             let Some(init) = &local.init &&
             let syn::Expr::Lit(expr_lit) = &*init.expr &&
             let syn::Lit::Str(lit_str) = &expr_lit.lit {
@@ -102,7 +102,7 @@ pub fn instrument_query(args: TokenStream, item: TokenStream) -> TokenStream {
     if let (Some(query_lit), Some(index)) = (query_literal.as_ref(), query_stmt_index) {
         let original_query = query_lit.value();
         let new_stmt: syn::Stmt = syn::parse(quote! {
-            let query = &format!(
+            let #query_ident = &format!(
                 "/*ddh={host},dddb={db}*/ {query}",
                 host = #db_ident.connect_options().get_host(),
                 db = #db_ident.connect_options().get_database().unwrap_or(""),
