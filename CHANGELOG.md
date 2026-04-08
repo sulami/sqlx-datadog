@@ -1,8 +1,17 @@
+## [0.4.3] - 2026-04-08
+
+### 🐛 Bug Fixes
+
+- Don't inject propagation comments into query text
 ## [0.4.2] - 2026-03-25
 
 ### 🚀 Features
 
 - Add the span ID to the query comments for correlation
+
+### ⚙️ Miscellaneous Tasks
+
+- Release sqlx-datadog version 0.4.2
 ## [0.4.1] - 2026-03-25
 
 ### 📚 Documentation
